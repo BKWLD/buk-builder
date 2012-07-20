@@ -1,5 +1,5 @@
 /*! =======================================================
- * BUK Builder v0.4.1
+ * BUK Builder v0.5.0
  * Platform agnostic versioning tool for CSS & RequireJS.
  * https://github.com/danro/buk-builder-js
  * ========================================================
