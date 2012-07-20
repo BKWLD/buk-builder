@@ -1,0 +1,27 @@
+{
+	"dev": true,
+	"paths": {
+		"latest": "/build/latest/",
+		"dist": "/build/dist/"
+	},
+	"files": {
+		"app.js": "app-8be13ed320014df0937413754ddb316fec3d5a10.js",
+		"jquery.js": "jquery-3aa041d7e70de65c8516b1934776517784764823.js",
+		"modernizr.js": "modernizr-fa1eaf3f907b8e0ae9eb8a6494236b97525a860c.js",
+		"style.css": "style-d68ab2f54be02e63a252110f5fe35f5e77de4b52.css"
+	},
+	"css-compress": [
+		"style.css"
+	],
+	"js-modules": {
+		"app.js": {
+			"baseUrl": "../js/",
+			"name": "main",
+			"paths": {
+				"jquery": "empty:",
+				"underscore": "libs/underscore",
+				"backbone": "libs/backbone"
+			}
+		}
+	}
+}
