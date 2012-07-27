@@ -1,12 +1,16 @@
-/* TODO decide where this configuration should go.. and test against r.js optimizer. */
+// Set the require.js configuration for your application.
 require.config({
-  "baseUrl": "../../js/",
-  "paths": {
-    "jquery": "empty:",
-    "underscore": "libs/underscore",
-    "backbone": "libs/backbone"
-  },
-  "deps": [
-    "main"
-  ]
+	
+	// Base path used to load local scripts
+	baseUrl: "/js/",
+	
+	// Define named libraries
+	paths: {
+		"jquery": "empty:", // jquery is already loaded
+		"underscore": "libs/underscore",
+		"backbone": "libs/backbone"
+	},
+	
+	// Initialize the main js application
+	deps: ["main"]
 });

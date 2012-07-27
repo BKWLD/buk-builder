@@ -54,6 +54,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
 p {
-  padding: 2em;
+  padding: 1em;
 }

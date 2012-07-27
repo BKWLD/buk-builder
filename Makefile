@@ -1,7 +1,12 @@
 dev:
-	@ touch sass/style.scss
+	@ make compass clean
 	@ cd build && node buk-builder dev
-test:
-	@ cd build && node buk-builder test
-reset:
-	git show HEAD:build/config.json > build/config.json
+build:
+	@ make compass clean
+	@ cd build && node buk-builder build
+compass:
+	@ echo -- compiling sass files
+	@ compass compile
+clean:
+	@ echo -- removing dist files
+	@ rm -fv public/dist/*.{js,css}
