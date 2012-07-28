@@ -8,8 +8,8 @@ module.exports = {
 	// file paths for builder
 	paths: {
 		"public": "public", // public directory which contains all assets
-		"dist": "public/dist", // output directory for hashed files
-		"src": "/" // prefix for all tag src attributes
+		"dist": "dist", // output dir for hashed assets
+		"prefix": "/" // prefix for all tag src attributes
 	},
 	
 	// assets to minify and hash
