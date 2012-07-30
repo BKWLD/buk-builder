@@ -26,8 +26,8 @@ var realRoot = fs.realpathSync('../'),
 	jquery = fs.readFileSync('./utils/jquery-1.7.2.min.js').toString(),
 	logPrefix = '-- ',
 	logArrow = '---> '.bold.grey,
-	modeDev = 'dev',
-	modeBuild = 'build',
+	devMode = 'dev',
+	buildMode = 'build',
 	extJs = '.js',
 	extCss = '.css';
 	
@@ -45,10 +45,13 @@ var BukBuilder = BaseClass.extend({
 	
 	assets: {},
 	templates: {},
+	mode: devMode,
 	
 	// main flow ---------------------------------------------------------
 	initialize: function (mode) {
 		var self = this;
+		
+		self.setMode(mode);
 	  self.showBanner();
 		self.initAssets();
 		self.initTemplates();
@@ -62,6 +65,11 @@ var BukBuilder = BaseClass.extend({
 		console.log('==========[ BUK Builder ]=========='.blue.bold);
 	},
 	
+	setMode: function (mode) {
+		var self = this;
+		if (_.contains([devMode, buildMode], mode)) self.mode = mode;
+	},
+	
 	initAssets: function () {
 		var self = this;
 		_.each(config.assets, function (value, key) {
@@ -70,8 +78,6 @@ var BukBuilder = BaseClass.extend({
 			asset.on('invalid', _.bind(self.removeAsset, self));
 			asset.validate();
 		});
-		
-		console.log(self.assets);
 	},
 	
 	initTemplates: function () {
@@ -82,8 +88,6 @@ var BukBuilder = BaseClass.extend({
 			template.on('invalid', _.bind(self.removeTemplate, self));
 			template.validate();
 		});
-		
-		console.log(self.templates);
 	},
 	
 	removeAsset: function (asset) {
@@ -98,7 +102,7 @@ var BukBuilder = BaseClass.extend({
 	
 });
 
-// BaseFile class - file validation and warning messages
+// BaseFile class - validation and warning messages
 var BaseFile = BaseClass.extend({
 	
 	basePath: realRoot,
@@ -147,8 +151,6 @@ var Asset = BaseFile.extend({
 
 // Template class - validate and modify templates
 var Template = BaseFile.extend({
-	
-	basePath: realRoot,
 	
 	initialize: function (src) {
 		var self = this;

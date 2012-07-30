@@ -1,12 +1,22 @@
+# Name phony targets to avoid name conflicts
+.PHONY: dev build sass clean
+
+# Run builder for local development
 dev:
-	@ make compass clean
+	@ make sass clean
 	@ cd build && node buk-builder dev
+
+# Create a build with file hashing for production
 build:
-	@ make compass clean
+	@ make sass clean
 	@ cd build && node buk-builder build
-compass:
+
+# Pre-process sass files to get latest css
+sass:
 	@ echo -- compiling sass files
 	@ compass compile
+	
+# Remove js / css files in the dist directory
 clean:
 	@ echo -- removing dist files
 	@ rm -fv public/dist/*.{js,css}
