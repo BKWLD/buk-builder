@@ -13,8 +13,9 @@ var fs = require('fs'),
 	rjs = require('requirejs'),
 	colors = require('colors'),
 	crypto = require('crypto'),
+	jsdom = require('jsdom'),
 	config = require('../config.js'),
-	BaseClass = require('./utils/base-class'),
+	BaseClass = require('base-class'),
 	_ = require('underscore');
 
 // properties
@@ -23,7 +24,6 @@ var realRoot = fs.realpathSync('../'),
 	realDist = '',
 	srcPrefix = config.paths.prefix,
 	distPath = srcPrefix + config.paths.dist,
-	jquery = fs.readFileSync('./utils/jquery-1.7.2.min.js').toString(),
 	logPrefix = '-- ',
 	logArrow = '---> '.bold.grey,
 	devMode = 'dev',
@@ -45,29 +45,36 @@ var BukBuilder = BaseClass.extend({
 	
 	assets: {},
 	templates: {},
-	mode: devMode,
 	
 	// main flow ---------------------------------------------------------
 	initialize: function (mode) {
 		var self = this;
 		
-		self.setMode(mode);
-	  self.showBanner();
+		// common init
+		mode = self.validMode(mode);
+		self.showBanner(mode);
 		self.initAssets();
 		self.initTemplates();
 		
-		// TODO
+		// optimize assets in build mode
+		if (mode === buildMode) _.invoke(self.assets, 'optimize');
 		
+		// update tags in template files
+		_.invoke(self.templates, 'update');
+		
+		// finished!
+		self.logFinished();
 	},
 	
 	// helpers ---------------------------------------------------------
-	showBanner: function () {
-		console.log('==========[ BUK Builder ]=========='.blue.bold);
-	},
-	
-	setMode: function (mode) {
+	showBanner: function (mode) {
 		var self = this;
-		if (_.contains([devMode, buildMode], mode)) self.mode = mode;
+		console.log('==========[ BUK Builder ('.blue.bold + mode + ') ]=========='.blue.bold);
+	},
+		
+	validMode: function (mode) {
+		var validModes = [devMode, buildMode];
+		return _.contains(validModes, mode) ? mode : devMode;
 	},
 	
 	initAssets: function () {
@@ -84,6 +91,7 @@ var BukBuilder = BaseClass.extend({
 		var self = this;
 		_.each(config.templates, function (value, index) {
 			var template = new Template(value);
+			template.assets = self.assets;
 			self.templates[value] = template;
 			template.on('invalid', _.bind(self.removeTemplate, self));
 			template.validate();
@@ -98,8 +106,12 @@ var BukBuilder = BaseClass.extend({
 	removeTemplate: function (template) {
 		var self = this;
 		delete self.templates[template.src];
-	}
+	},
 	
+	logFinished: function () {
+		console.log("");
+		console.log(logPrefix + "done!");
+	}
 });
 
 // BaseFile class - validation and warning messages
@@ -125,7 +137,7 @@ var BaseFile = BaseClass.extend({
 });
 
 
-// Asset class - validate and minify assets
+// Asset class - validate and optimize assets
 var Asset = BaseFile.extend({
 	
 	basePath: realPublic,
@@ -146,11 +158,17 @@ var Asset = BaseFile.extend({
 			// add prefix to src
 			self.src = srcPrefix + self.src;
 		}
+	},
+	
+	optimize: function () {
+		
 	}
 });
 
 // Template class - validate and modify templates
 var Template = BaseFile.extend({
+	
+	assets: {}, // reference to builder.assets
 	
 	initialize: function (src) {
 		var self = this;
@@ -160,8 +178,11 @@ var Template = BaseFile.extend({
 	validate: function () {
 		var self = this;
 		var valid = self.supr('template');
-	}
+	},
 	
+	update: function () {
+		
+	}
 });
 
 // start the build process

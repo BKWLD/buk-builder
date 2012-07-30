@@ -13,10 +13,10 @@ build:
 
 # Pre-process sass files to get latest css
 sass:
-	@ echo -- compiling sass files
+	@ echo -- pre-process sass files
 	@ compass compile
 	
 # Remove js / css files in the dist directory
 clean:
-	@ echo -- removing dist files
+	@ echo -- clean old dist files
 	@ rm -fv public/dist/*.{js,css}
