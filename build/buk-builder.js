@@ -161,6 +161,7 @@ var BaseFile = BaseClass.extend({
 		// validate src file within public directory
 		try {
 			self.realPath = fs.realpathSync(self.basePath + '/' + self.src);
+			self.logSrc = self.realPath.replace(realRoot + '/', '');
 		} catch (e) {
 			console.log(logPrefix + (name + ' warning: ').red.bold +
 				'"' + config.paths.public + '/' + self.src + '" does not exist.');
@@ -230,7 +231,7 @@ var Asset = BaseFile.extend({
 		var self = this;
 		// RequireJS module combine + minify (if set)
 		if (self.rjs) {
-			console.log(logPrefix + "optimizing javascript module: " + (self.src).green);
+			console.log(logPrefix + "optimizing javascript module: " + (self.logSrc).green);
 			requirejs.optimize({
 				mainConfigFile: self.realPath,
 				baseUrl: realPublic + '/' + config.paths.js,
@@ -240,7 +241,7 @@ var Asset = BaseFile.extend({
 		
 		// normal javascript minify
 		} else {
-			console.log(logPrefix + "optimizing javascript file: " + (self.src).green);
+			console.log(logPrefix + "optimizing javascript file: " + (self.logSrc).green);
 			requirejs.optimize({
 				baseUrl: self.dirname,
 				include: self.name,
@@ -252,7 +253,7 @@ var Asset = BaseFile.extend({
 	
 	optimizeCss: function (outFile) {
 		var self = this;
-		console.log(logPrefix + "optimizing css file: " + (self.src).green);
+		console.log(logPrefix + "optimizing css file: " + (self.logSrc).green);
 		requirejs.optimize({
 		  optimizeCss: 'standard',
 		  cssIn: self.realPath,
@@ -263,7 +264,7 @@ var Asset = BaseFile.extend({
 	copy: function (outFile) {
 		var self = this;
 		var sourceFile = fs.readFileSync(self.realPath);
-		console.log(logPrefix + "copying file to dist: " + (self.src).green);
+		console.log(logPrefix + "copying file to dist: " + (self.logSrc).green);
 		fs.writeFileSync(outFile, sourceFile);
 	},
 	
@@ -272,15 +273,16 @@ var Asset = BaseFile.extend({
 		try {
 			// hash digest the tempDist file
 			var data = fs.readFileSync(tempDist, 'utf8'),
-			digest = crypto.createHash('sha1').update(data).digest('hex'),
-			fileName = self.id + '-' + digest + self.ext;
+				digest = crypto.createHash('sha1').update(data).digest('hex'),
+				fileName = self.id + '-' + digest + self.ext,
+				distFile = realDist + '/' + fileName;
 			
 			// rename the temp file to the new hashed name
-			fs.renameSync(tempDist, realDist + '/' + fileName);
+			fs.renameSync(tempDist, distFile);
 			
 			// store new src for templates
 			self.src = distPath + '/' + fileName;
-			console.log(self.src.grey + '\n');
+			console.log(distFile.replace(realRoot + '/', '').grey + '\n');
 			
 		} catch (e) {
 			// console.log(e);
@@ -288,7 +290,7 @@ var Asset = BaseFile.extend({
 	},
 	
 	rjsOut: function (buildResponse) {
-		var response = buildResponse.replace(RegExp(realRoot, "g"), "");
+		var response = buildResponse.replace(RegExp(realRoot + '/', "g"), "");
 		var lines = _.without(response.split('\n'), '');
 		lines = _.rest(lines, 2);
 		console.log(lines.join('\n').grey);
@@ -338,9 +340,9 @@ var Template = BaseFile.extend({
 		// write the updated template file if it has changed
 		var htmlResult = $.html();
 		if (htmlStart === htmlResult) {
-			console.log(logPrefix + 'template unchanged: ' + (self.src).grey);
+			console.log(logPrefix + 'template unchanged: ' + (self.logSrc).grey);
 		} else {
-			console.log(logPrefix + 'template modified: ' + (self.src).green);
+			console.log(logPrefix + 'template modified: ' + (self.logSrc).green);
 			fs.writeFileSync(self.realPath, htmlResult);
 		}
 	}
