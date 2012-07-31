@@ -1,15 +1,23 @@
 # Name phony targets to avoid name conflicts
 .PHONY: dev build sass clean
 
+# Define vars
+builder = cd build && node buk-builder
+dist_dir = public/dist
+
 # Run builder for local development
+# `make` or `make dev`
 dev:
+	@ $(builder) banner dev
 	@ make sass clean
-	@ cd build && node buk-builder dev
+	@ $(builder) dev
 
 # Create a build with file hashing for production
+# `make build`
 build:
+	@ $(builder) banner build
 	@ make sass clean
-	@ cd build && node buk-builder build
+	@ $(builder) build
 
 # Pre-process sass files to get latest css
 sass:
@@ -18,5 +26,9 @@ sass:
 	
 # Remove js / css files in the dist directory
 clean:
-	@ echo -- clean old dist files
-	@ rm -fv public/dist/*.{js,css}
+	@ if [ ! -d $(dist_dir) ]; then \
+		echo 'make: directory does not exist: $(dist_dir)'; \
+		exit 1; \
+	fi;
+	@ echo -- remove old dist files
+	@ rm -f $(dist_dir)/*.{js,css}

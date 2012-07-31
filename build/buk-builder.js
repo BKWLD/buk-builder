@@ -1,7 +1,7 @@
 /*! =======================================================
  * BUK Builder v0.5.0
  * Platform agnostic versioning tool for CSS & RequireJS.
- * https://github.com/danro/buk-builder-js
+ * https://github.com/bkwld/buk-builder
  * ========================================================
  * (c) 2012 Dan Rogers
  * This code may be freely distributed under the MIT license.
@@ -10,10 +10,12 @@
 
 // dependencies
 var fs = require('fs'),
-	rjs = require('requirejs'),
-	colors = require('colors'),
 	crypto = require('crypto'),
-	jsdom = require('jsdom'),
+	path = require('path'),
+	async = require('async'),
+	requirejs = require('requirejs'),
+	colors = require('colors'),
+	cheerio = require('cheerio'),
 	config = require('../config.js'),
 	BaseClass = require('base-class'),
 	_ = require('underscore');
@@ -40,24 +42,53 @@ try {
 	process.exit();
 }
 
-// BukBuilder singleton - run the builder and output results
+/* ========================================================
+ * BukBuilder singleton - run the builder and output results
+ * ========================================================
+ */
 var BukBuilder = BaseClass.extend({
 	
 	assets: {},
 	templates: {},
 	
-	// main flow ---------------------------------------------------------
-	initialize: function (mode) {
+	// main constructor
+	initialize: function (mode, option) {
 		var self = this;
+		
+		// banner-only mode
+		if (mode === 'banner') {
+			self.showBanner(option);
+			process.exit();
+		}
+		
+		self.newline();
 		
 		// common init
 		mode = self.validMode(mode);
-		self.showBanner(mode);
 		self.initAssets();
 		self.initTemplates();
 		
-		// optimize assets in build mode
-		if (mode === buildMode) _.invoke(self.assets, 'optimize');
+		// if there are no assets, we're done here
+		if (!_.size(self.assets)) process.exit();
+		
+		// begin opimizing assets if in build mode
+		if (mode === buildMode) {
+			// start async series for all assets
+			var series = _.map(self.assets, function (asset) {
+				return _.bind(asset.optimize, asset);
+			});
+			async.series(series, function (err, results) {
+				self.assetsReady();
+			});
+			
+		// otherwise skip ahead to ready
+		} else {
+			self.assetsReady();
+		}
+	},
+		
+	assetsReady: function () {
+		var self = this;
 		
 		// update tags in template files
 		_.invoke(self.templates, 'update');
@@ -66,10 +97,14 @@ var BukBuilder = BaseClass.extend({
 		self.logFinished();
 	},
 	
-	// helpers ---------------------------------------------------------
+	// helper methods
 	showBanner: function (mode) {
 		var self = this;
 		console.log('==========[ BUK Builder ('.blue.bold + mode + ') ]=========='.blue.bold);
+	},
+	
+	newline: function () {
+		console.log('');
 	},
 		
 	validMode: function (mode) {
@@ -137,7 +172,10 @@ var BaseFile = BaseClass.extend({
 });
 
 
-// Asset class - validate and optimize assets
+/* ========================================================
+ * Asset class - validate and optimize assets
+ * ========================================================
+ */
 var Asset = BaseFile.extend({
 	
 	basePath: realPublic,
@@ -145,6 +183,7 @@ var Asset = BaseFile.extend({
 	src: null,
 	min: false,
 	rjs: false,
+	ext: null,
 	
 	initialize: function (obj) {
 		var self = this;
@@ -157,18 +196,114 @@ var Asset = BaseFile.extend({
 		if (valid) {
 			// add prefix to src
 			self.src = srcPrefix + self.src;
+			self.ext = path.extname(self.src);
+			self.name = path.basename(self.src);
+			self.dirname = path.dirname(self.realPath);
 		}
 	},
 	
-	optimize: function () {
+	optimize: function (callback) {
+		var self = this;
 		
+		// tempDist file name is realDist + id
+		var tempDist = realDist + '/' + self.id + self.ext;
+		
+		if (self.rjs) {
+			// if asset is an rjs module, optimize it regardless of min setting
+			self.optimizeJs(tempDist);
+		} else if (self.min) {
+			// if not an rjs module, we should still minify
+			if (self.ext === extJs) self.optimizeJs(tempDist);
+			if (self.ext === extCss) self.optimizeCss(tempDist);
+		} else {
+			// otherwise, simply copy the file into dist
+			self.copy(tempDist);
+		}
+		
+		// then hash and rename the tempDist
+		self.hash(tempDist);
+		
+		callback();
+	},
+	
+	optimizeJs: function (outFile) {
+		var self = this;
+		// RequireJS module combine + minify (if set)
+		if (self.rjs) {
+			console.log(logPrefix + "optimizing javascript module: " + (self.src).green);
+			requirejs.optimize({
+				mainConfigFile: self.realPath,
+				baseUrl: realPublic + '/' + config.paths.js,
+				optimize: self.min ? 'uglify' : 'none',
+				out: outFile
+			}, self.rjsOut);
+		
+		// normal javascript minify
+		} else {
+			console.log(logPrefix + "optimizing javascript file: " + (self.src).green);
+			requirejs.optimize({
+				baseUrl: self.dirname,
+				include: self.name,
+				skipModuleInsertion: true,
+				out: outFile
+			}, self.rjsOut);
+		}
+	},
+	
+	optimizeCss: function (outFile) {
+		var self = this;
+		console.log(logPrefix + "optimizing css file: " + (self.src).green);
+		requirejs.optimize({
+		  optimizeCss: 'standard',
+		  cssIn: self.realPath,
+		  out: outFile
+		}, self.rjsOut);
+	},
+	
+	copy: function (outFile) {
+		var self = this;
+		var sourceFile = fs.readFileSync(self.realPath);
+		console.log(logPrefix + "copying file to dist: " + (self.src).green);
+		fs.writeFileSync(outFile, sourceFile);
+	},
+	
+	hash: function (tempDist) {
+		var self = this;
+		try {
+			// hash digest the tempDist file
+			var data = fs.readFileSync(tempDist, 'utf8'),
+			digest = crypto.createHash('sha1').update(data).digest('hex'),
+			fileName = self.id + '-' + digest + self.ext;
+			
+			// rename the temp file to the new hashed name
+			fs.renameSync(tempDist, realDist + '/' + fileName);
+			
+			// store new src for templates
+			self.src = distPath + '/' + fileName;
+			console.log(self.src.grey + '\n');
+			
+		} catch (e) {
+			// console.log(e);
+		}
+	},
+	
+	rjsOut: function (buildResponse) {
+		var response = buildResponse.replace(RegExp(realRoot, "g"), "");
+		var lines = _.without(response.split('\n'), '');
+		lines = _.rest(lines, 2);
+		console.log(lines.join('\n').grey);
 	}
 });
 
-// Template class - validate and modify templates
+/* ========================================================
+ * Template class - validate and modify templates
+ * ========================================================
+ */
 var Template = BaseFile.extend({
 	
 	assets: {}, // reference to builder.assets
+	realPath: null,
+	attrMap: { link: 'href', script: 'src' },
 	
 	initialize: function (src) {
 		var self = this;
@@ -181,9 +316,35 @@ var Template = BaseFile.extend({
 	},
 	
 	update: function () {
+		var self = this;
 		
+		// load page into cheerio for jquery style dom manipulation
+		var htmlStart = fs.readFileSync(self.realPath, 'utf8');
+		var $ = cheerio.load(htmlStart);
+		
+		// for each tag with a valid data-build-id, match the current asset src
+		$('*[data-build-id]').each(function () {
+			var $tag = $(this),
+				srcAttr = self.attrMap[$tag[0].name],
+				asset = self.assets[$tag.attr('data-build-id')];
+			
+			// skip invalid assets or invalid tag types
+			if (!asset || !srcAttr) return;
+			
+			// change tag source attribute
+			$tag.attr(srcAttr, asset.src);
+		});
+		
+		// write the updated template file if it has changed
+		var htmlResult = $.html();
+		if (htmlStart === htmlResult) {
+			console.log(logPrefix + 'template unchanged: ' + (self.src).grey);
+		} else {
+			console.log(logPrefix + 'template modified: ' + (self.src).green);
+			fs.writeFileSync(self.realPath, htmlResult);
+		}
 	}
 });
 
 // start the build process
-new BukBuilder(process.argv[2]);
+new BukBuilder(process.argv[2], process.argv[3]);
