@@ -7,17 +7,22 @@ dist_dir = public/dist
 
 # Run builder for local development
 # `make` or `make dev`
+# builder options:
+#   mode=(banner|build)
+#   label=text
+#   base=path
+#   config=file.js
 dev:
-	@ $(builder) banner dev
+	@ $(builder) mode=banner label=development
 	@ make sass clean
-	@ $(builder) dev
+	@ $(builder)
 
 # Create a build with file hashing for production
 # `make build`
 build:
-	@ $(builder) banner build
+	@ $(builder) mode=banner label=build
 	@ make sass clean
-	@ $(builder) build
+	@ $(builder) mode=build
 
 # Pre-process sass files to get latest css
 sass:

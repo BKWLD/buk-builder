@@ -1,5 +1,5 @@
 /*! =======================================================
- * BUK Builder v0.5.0
+ * BUK Builder v0.5.1
  * Platform agnostic versioning tool for CSS & RequireJS.
  * https://github.com/bkwld/buk-builder
  * ========================================================
@@ -16,32 +16,29 @@ var fs = require('fs'),
 	requirejs = require('requirejs'),
 	colors = require('colors'),
 	cheerio = require('cheerio'),
-	config = require('../config.js'),
 	BaseClass = require('base-class'),
 	_ = require('underscore');
 
 // properties
-var realRoot = fs.realpathSync('../'),
+var config = null,
+	baseDir = '../',
+	realRoot = '',
 	realPublic = '',
 	realDist = '',
-	srcPrefix = config.paths.prefix,
-	distPath = srcPrefix + config.paths.dist,
+	srcPrefix = '',
+	distPath = '',
 	logPrefix = '-- ',
 	logArrow = '---> '.bold.grey,
-	devMode = 'dev',
-	buildMode = 'build',
 	extJs = '.js',
 	extCss = '.css';
 	
-// define / validate real paths
-try {
-	realPublic = fs.realpathSync(realRoot + '/' + config.paths.public),
-	realDist = fs.realpathSync(realPublic + '/' + config.paths.dist);
-} catch (e) {
-	console.log(e);
-	process.exit();
-}
-
+	// parse arguments from key=value pairs and store in options object
+	var options = {};
+	_.each(_.rest(process.argv, 2), function (argument) {
+		var pair = argument.split('=');
+		options[pair[0]] = pair[1];
+	});
+	
 /* ========================================================
  * BukBuilder singleton - run the builder and output results
  * ========================================================
@@ -52,19 +49,18 @@ var BukBuilder = BaseClass.extend({
 	templates: {},
 	
 	// main constructor
-	initialize: function (mode, option) {
+	initialize: function () {
 		var self = this;
 		
 		// banner-only mode
-		if (mode === 'banner') {
-			self.showBanner(option);
+		if (options.mode === 'banner') {
+			self.showBanner();
 			process.exit();
 		}
 		
-		self.newline();
-		
 		// common init
-		mode = self.validMode(mode);
+		self.loadConfig();
+		self.newline();
 		self.initAssets();
 		self.initTemplates();
 		
@@ -72,7 +68,7 @@ var BukBuilder = BaseClass.extend({
 		if (!_.size(self.assets)) process.exit();
 		
 		// begin opimizing assets if in build mode
-		if (mode === buildMode) {
+		if (options.mode === 'build') {
 			// start async series for all assets
 			var series = _.map(self.assets, function (asset) {
 				return _.bind(asset.optimize, asset);
@@ -84,6 +80,42 @@ var BukBuilder = BaseClass.extend({
 		// otherwise skip ahead to ready
 		} else {
 			self.assetsReady();
+		}
+	},
+	
+	loadConfig: function () {
+		// determine base dir from options
+		if (_.isString(options.base)) baseDir += options.base;
+		try {
+			baseDir = fs.realpathSync(baseDir);
+		} catch (e) {
+			console.log(logPrefix + 'invalid base directory: '.red.bold + baseDir);
+			process.exit();
+		}
+		
+		// load config module
+		var configFile = 'config.js';
+		if (_.isString(options.config)) configFile = options.config;
+		try {
+			config = require(baseDir + '/' + configFile);
+		} catch (e) {
+			console.log(logPrefix + 'error loading config file: '.red.bold + configFile);
+			console.log(e.toString());
+			process.exit();
+		}
+		
+		srcPrefix = config.paths.prefix;
+		distPath = srcPrefix + config.paths.dist;
+		
+		// define / validate real paths
+		try {
+			realRoot = fs.realpathSync(baseDir);
+			realPublic = fs.realpathSync(realRoot + '/' + config.paths.public),
+			realDist = fs.realpathSync(realPublic + '/' + config.paths.dist);
+		} catch (e) {
+			console.log(logPrefix + 'error reading directory: '.red.bold);
+			console.log(e.toString());
+			process.exit();
 		}
 	},
 		
@@ -98,18 +130,14 @@ var BukBuilder = BaseClass.extend({
 	},
 	
 	// helper methods
-	showBanner: function (mode) {
-		var self = this;
-		console.log('==========[ BUK Builder ('.blue.bold + mode + ') ]=========='.blue.bold);
+	showBanner: function () {
+		var self = this,
+			label = _.isString(options.label) ? options.label : '';
+		console.log('==========[ BUK Builder ('.blue.bold + label + ') ]=========='.blue.bold);
 	},
 	
 	newline: function () {
 		console.log('');
-	},
-		
-	validMode: function (mode) {
-		var validModes = [devMode, buildMode];
-		return _.contains(validModes, mode) ? mode : devMode;
 	},
 	
 	initAssets: function () {
@@ -152,7 +180,7 @@ var BukBuilder = BaseClass.extend({
 // BaseFile class - validation and warning messages
 var BaseFile = BaseClass.extend({
 	
-	basePath: realRoot,
+	basePath: null,
 	src: null,
 	
 	validate: function (name) {
@@ -179,7 +207,7 @@ var BaseFile = BaseClass.extend({
  */
 var Asset = BaseFile.extend({
 	
-	basePath: realPublic,
+	basePath: null,
 	id: null,
 	src: null,
 	min: false,
@@ -189,6 +217,7 @@ var Asset = BaseFile.extend({
 	initialize: function (obj) {
 		var self = this;
 		_.extend(self, obj);
+		self.basePath = realPublic;
 	},
 	
 	validate: function () {
@@ -310,6 +339,7 @@ var Template = BaseFile.extend({
 	initialize: function (src) {
 		var self = this;
 		self.src = src;
+		self.basePath = realRoot;
 	},
 	
 	validate: function () {
@@ -349,4 +379,4 @@ var Template = BaseFile.extend({
 });
 
 // start the build process
-new BukBuilder(process.argv[2], process.argv[3]);
+new BukBuilder();
