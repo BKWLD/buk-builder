@@ -32,12 +32,12 @@ var config = null,
 	extJs = '.js',
 	extCss = '.css';
 	
-	// parse arguments from key=value pairs and store in options object
-	var options = {};
-	_.each(_.rest(process.argv, 2), function (argument) {
-		var pair = argument.split('=');
-		options[pair[0]] = pair[1];
-	});
+// parse arguments from key=value pairs and store in options object
+var options = {};
+_.each(_.rest(process.argv, 2), function (argument) {
+	var pair = argument.split('=');
+	options[pair[0]] = pair[1];
+});
 	
 /* ========================================================
  * BukBuilder singleton - run the builder and output results
