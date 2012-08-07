@@ -1,5 +1,5 @@
 /*! =======================================================
- * BUK Builder v0.5.1
+ * BUK Builder v0.5.2
  * Platform agnostic versioning tool for CSS & RequireJS.
  * https://github.com/bkwld/buk-builder
  * ========================================================
@@ -227,7 +227,7 @@ var Asset = BaseFile.extend({
 			// add prefix to src
 			self.src = srcPrefix + self.src;
 			self.ext = path.extname(self.src);
-			self.name = path.basename(self.src);
+			self.name = path.basename(self.src, self.ext);
 			self.dirname = path.dirname(self.realPath);
 		}
 	},
@@ -264,6 +264,7 @@ var Asset = BaseFile.extend({
 			requirejs.optimize({
 				mainConfigFile: self.realPath,
 				baseUrl: realPublic + '/' + config.paths.js,
+				name: self.name,
 				optimize: self.min ? 'uglify' : 'none',
 				out: outFile
 			}, self.rjsOut);

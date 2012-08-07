@@ -1,4 +1,19 @@
-define(function (require) {
+// Set the require.js configuration for the application
+require.config({
+	
+	// Base path used to load scripts
+	baseUrl: '/js/',
+	
+	// Set common library paths
+	paths: {
+		jquery: 'empty:', // jquery is already loaded
+		underscore: 'libs/underscore',
+		backbone: 'libs/backbone'
+	}
+});
+
+// Define the application entry point
+define('main', function (require) {
 	
 	// dependencies
 	var $ = require('jquery'),
@@ -6,8 +21,11 @@ define(function (require) {
 		Backbone = require('backbone'),
 		Example = require('modules/example');
 		
-	// jquery + modules have loaded, handle DOM ready event.
-	$(function() {
-			new Example();
+	// modules loaded + DOM ready
+	$(function () {
+		new Example();
 	});
 });
+
+// Start the application
+require(['main']);

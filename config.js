@@ -16,10 +16,10 @@ module.exports = {
 	// assets to minify and hash
 	assets: [
 		// data-build-id   dev src path   minify?   requirejs module?
-		{ id: "jquery",    src: "js/libs/jquery.js" },
+		{ id: "jquery",    src: "js/libs/require-jquery.js" },
 		{ id: "modernizr", src: "js/libs/modernizr.js" },
 		{ id: "style",     src: "css/style.css", min: true },
-		{ id: "app",       src: "js/libs/app.js", min: true, rjs: true }
+		{ id: "main",      src: "js/main.js", min: true, rjs: true }
 	],
 	
 	// templates with asset tags to maintain
