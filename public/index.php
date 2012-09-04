@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Buk Builder Example</title>
+	<meta charset="utf-8"/>
 
 	<?php include('../app/partials/header.html'); ?>
 
