@@ -2,12 +2,16 @@
 # Compass + SASS configuration
 # =======================================================
 
-# Set this to the root of your project when deployed:
-http_path = "/"
-css_dir = "public/css"
-sass_dir = "sass"
-images_dir = "public/images"
-javascripts_dir = "public/js"
+sass_dir                   = "sass"
+css_dir                    = "public/css"
+javascripts_dir            = "public/js"
+images_dir                 = "public/images"
+
+http_path                  = "/"
+http_stylesheets_path      = "#{http_path}css"
+http_javascripts_path      = "#{http_path}js"
+http_images_path           = "#{http_path}images"
+http_generated_images_path = http_images_path
 
 # You can select your preferred output style here (can be overridden via the command line):
 output_style = :expanded  #:expanded or :nested or :compact or :compressed
