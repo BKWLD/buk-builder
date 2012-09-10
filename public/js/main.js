@@ -4,6 +4,12 @@ require.config({
 	// Base path used to load scripts
 	baseUrl: '/js/',
 	
+	// Prevent caching during dev
+	urlArgs: "bust=" + (new Date()).getTime(),
+	
+	// Exclude these modules on build
+	stubModules: ['text'],
+	
 	// Set common library paths
 	paths: {
 		jquery: 'empty:', // jquery is already loaded
