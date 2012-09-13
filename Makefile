@@ -23,6 +23,7 @@ build:
 	@ $(builder) mode=banner label=build
 	@ make sass clean
 	@ $(builder) mode=build
+	@ git add .
 
 # Pre-process sass files to get latest css
 sass:
