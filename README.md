@@ -2,13 +2,13 @@
 
 1. Install NodeJS (0.6 or higher): http://nodejs.org/download/
 
-2. Make sure you've got `make` installed. 
-	* Check availability by running `which make`
-	* If undefined (on Mac OSX), install [Xcode command line tools](https://developer.apple.com/downloads)
-	
+2. Make sure you've got `make` installed.  
+	-- Check availability by running `which make`  
+	-- If undefined (on Mac OSX), install [Xcode command line tools](https://developer.apple.com/downloads)  
+
 3. Install Compass + plugins for SASS compilation:
 
-	`gem install compass`  
+	`gem install compass`
 
 # Building Front-end JS and CSS
 
