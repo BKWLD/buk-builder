@@ -38,3 +38,4 @@ clean:
 	fi;
 	@ echo -- remove old dist files
 	@ rm -f $(dist_dir)/*.{js,css}
+	@ git rm -f --ignore-unmatch $(dist_dir)/*.{js,css}
