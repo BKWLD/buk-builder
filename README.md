@@ -8,7 +8,8 @@
 
 3. Install Compass + plugins for SASS compilation:
 
-	`gem install compass`
+	`gem install compass`  
+	`gem install susy`  
 
 # Building Front-end JS and CSS
 
@@ -19,4 +20,4 @@ Buk Builder is run on the command line, using the following commands:
 `make dev` -- Update tags for local development.  
 `make build` -- Combine, minify assets and update tags for staging.  
 
-See `config.js` or `Makefile` for further details.
+See `config/builder.js` or `Makefile` for further details.
