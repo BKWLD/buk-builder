@@ -15,14 +15,14 @@ dist_dir = public/dist
 dev:
 	@ $(builder) mode=banner label=development
 	@ make sass clean
-	@ $(builder)
+	@ $(builder) config=config/builder.js
 
 # Create a build with file hashing for production
 # `make build`
 build:
 	@ $(builder) mode=banner label=build
 	@ make sass clean
-	@ $(builder) mode=build
+	@ $(builder) mode=build config=config/builder.js
 	@ git add $(dist_dir)
 
 # Pre-process sass files to get latest css
