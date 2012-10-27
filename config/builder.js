@@ -25,7 +25,7 @@ module.exports = {
 	// templates with asset tags to maintain
 	templates: [
 		// (path relative to root)
-		"public/example.html",
+		"public/index.html",
 		"app/partials/header.html",
 		"app/partials/footer.html"
 	]
