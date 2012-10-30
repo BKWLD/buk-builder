@@ -15,7 +15,12 @@ module.exports = {
 	
 	// assets to minify and hash
 	assets: [
-		// data-build-id   dev src path   minify?   requirejs module?
+		// options:
+		//   id: data-build-id
+		//   src: dev src path
+		//   min: minify?
+		//   rjs: requirejs module?
+		//   baseUrl: path (relative to the public directory) of the js file
 		{ id: "jquery",    src: "js/libs/require-jquery.js" },
 		{ id: "modernizr", src: "js/libs/modernizr.js" },
 		{ id: "style",     src: "css/style.css", min: true },

@@ -263,7 +263,7 @@ var Asset = BaseFile.extend({
 			console.log(logPrefix + "optimizing javascript module: " + (self.logSrc).green);
 			requirejs.optimize({
 				mainConfigFile: self.realPath,
-				baseUrl: realPublic + '/' + config.paths.js,
+				baseUrl: realPublic + '/' + (self.baseUrl ? self.baseUrl : config.paths.js),
 				name: self.name,
 				optimize: self.min ? 'uglify' : 'none',
 				out: outFile
