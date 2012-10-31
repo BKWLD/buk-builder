@@ -9,7 +9,8 @@ module.exports = {
 	paths: {
 		"public": "public", // public directory which contains all assets
 		"dist": "dist", // output dir for hashed assets
-		"js": "js", // base dir for all requirejs modules
+		"base": "js", // base dir for requirejs modules
+		"admin": "js/admin", // custom base dir for requirejs modules
 		"prefix": "/" // prefix for all tag src attributes
 	},
 	
@@ -19,19 +20,18 @@ module.exports = {
 		//   id: data-build-id
 		//   src: dev src path
 		//   min: minify?
-		//   rjs: requirejs module?
-		//   baseUrl: path (relative to the public directory) of the js file
+		//   rjs: requirejs module base, default: false, true == "base"
 		{ id: "jquery",    src: "js/libs/require-jquery.js" },
 		{ id: "modernizr", src: "js/libs/modernizr.js" },
 		{ id: "style",     src: "css/style.css", min: true },
-		{ id: "main",      src: "js/main.js", min: true, rjs: true }
+		{ id: "main",      src: "js/main.js", min: true, rjs: true },
+		{ id: "admin",     src: "js/admin/main.js", min: true, rjs: "admin" }
 	],
 	
 	// templates with asset tags to maintain
 	templates: [
 		// (path relative to root)
-		"public/index.html",
-		"app/partials/header.html",
-		"app/partials/footer.html"
+		"public/index-alt.html",
+		"public/index.html"
 	]
 };

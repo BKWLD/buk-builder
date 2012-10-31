@@ -1,5 +1,5 @@
 /*! =======================================================
- * BUK Builder v0.5.2
+ * BUK Builder v0.5.3
  * Platform agnostic versioning tool for CSS & RequireJS.
  * https://github.com/bkwld/buk-builder
  * ========================================================
@@ -239,7 +239,9 @@ var Asset = BaseFile.extend({
 		var tempDist = realDist + '/' + self.id + self.ext;
 		
 		if (self.rjs) {
-			// if asset is an rjs module, optimize it regardless of min setting
+			// if rjs value is truthy, use it to find the base module path
+			self.modulePath = config.paths[self.rjs] || config.paths.base || config.paths.js;
+			// asset is an rjs module, optimize it regardless of min setting
 			self.optimizeJs(tempDist);
 		} else if (self.min) {
 			// if not an rjs module, we should still minify
@@ -263,7 +265,7 @@ var Asset = BaseFile.extend({
 			console.log(logPrefix + "optimizing javascript module: " + (self.logSrc).green);
 			requirejs.optimize({
 				mainConfigFile: self.realPath,
-				baseUrl: realPublic + '/' + (self.baseUrl ? self.baseUrl : config.paths.js),
+				baseUrl: realPublic + '/' + self.modulePath,
 				name: self.name,
 				optimize: self.min ? 'uglify' : 'none',
 				out: outFile
