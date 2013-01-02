@@ -1,10 +1,6 @@
-define(function (require) {
-	
-	// dependencies
-	var $ = require('jquery');
-	
-	// define some jQuery plugin
+(function () {
+	// some non-module jQuery stuff D:
 	$.fn.crap = function() {
 		return this.append('<p>Crap is Go!</p>');
 	};
-});
+}());
