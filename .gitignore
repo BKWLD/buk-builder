@@ -38,7 +38,7 @@ dwsync.xml
 .idea
 .sass-cache
 _assets
-tags
+/tags
 intermediate
 publish
 /node_modules
