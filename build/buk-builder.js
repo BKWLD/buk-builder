@@ -1,5 +1,5 @@
 /*! =======================================================
- * BUK Builder v0.5.3
+ * BUK Builder v0.5.4
  * Platform agnostic versioning tool for CSS & RequireJS.
  * https://github.com/bkwld/buk-builder
  * ========================================================
@@ -218,6 +218,8 @@ var Asset = BaseFile.extend({
 		var self = this;
 		_.extend(self, obj);
 		self.basePath = realPublic;
+		// bind scope for anon callbacks
+		_.bindAll(self, ['rjsOut']);
 	},
 	
 	validate: function () {
@@ -238,6 +240,9 @@ var Asset = BaseFile.extend({
 		// tempDist file name is realDist + id
 		var tempDist = realDist + '/' + self.id + self.ext;
 		
+		// define async handler for optimize/copy methods
+		self.done = done;
+		
 		if (self.rjs) {
 			// if rjs value is truthy, use it to find the base module path
 			self.modulePath = config.paths[self.rjs] || config.paths.base || config.paths.js;
@@ -252,10 +257,12 @@ var Asset = BaseFile.extend({
 			self.copy(tempDist);
 		}
 		
-		// then hash and rename the tempDist
-		self.hash(tempDist);
-		
-		callback();
+		// optimze is done, time to hash
+		function done() {
+			// hash and rename the tempDist
+			self.hash(tempDist);
+			callback();
+		}
 	},
 	
 	optimizeJs: function (outFile) {
@@ -298,6 +305,7 @@ var Asset = BaseFile.extend({
 		var sourceFile = fs.readFileSync(self.realPath);
 		console.log(logPrefix + "copying file to dist: " + (self.logSrc).green);
 		fs.writeFileSync(outFile, sourceFile);
+		self.done();
 	},
 	
 	hash: function (tempDist) {
@@ -322,10 +330,12 @@ var Asset = BaseFile.extend({
 	},
 	
 	rjsOut: function (buildResponse) {
+		var self = this;
 		var response = buildResponse.replace(RegExp(realRoot + '/', "g"), "");
 		var lines = _.without(response.split('\n'), '');
 		lines = _.rest(lines, 2);
 		console.log(lines.join('\n').grey);
+		self.done();
 	}
 });
 

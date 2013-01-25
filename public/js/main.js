@@ -22,14 +22,15 @@ require.config({
 define('main', function (require) {
 	
 	// dependencies
-	var $ = require('jquery'),
-		_ = require('underscore'),
-		Backbone = require('backbone'),
-		Example = require('modules/example');
-		
+	var $ = require('jquery')
+		, _ = require('underscore')
+		, Backbone = require('backbone')
+		, Example = require('modules/example')
+	;
+	
 	// modules loaded + DOM ready
 	$(function () {
-		new Example();
+		new Example({ el: $('body') });
 	});
 });
 

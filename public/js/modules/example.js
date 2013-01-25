@@ -1,15 +1,21 @@
 define(function (require) {
 	
 	// dependencies
-	var $ = require('jquery');
-	require('plugins/jquery.crap');
+	var $ = require('jquery')
+		, _ = require('underscore')
+		, Backbone = require('backbone')
+		, crap = require('plugins/jquery.crap')
+	;
 	
-	// define module class
-	var Example = function () {
-		$('body').append('<p>Hello from example module.</p>');
-		$('body').crap();
-	};
+	var ExampleView = Backbone.View.extend({
+		
+		initialize: function () {
+			this.$el.append('<p>Hello from example module.</p>');
+			this.$el.crap();
+		}
+		
+	});
 	
 	// return exposed module
-	return Example;
+	return ExampleView;
 });
