@@ -46,3 +46,12 @@ publish
 # Ignore CSS in common LESS paths
 less/*.css
 less/*/*.css
+
+# Laravel
+/bootstrap/compiled.php
+/vendor
+composer.phar
+
+# Decoy
+/public/uploads/*
+/public/packages/*
