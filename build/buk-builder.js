@@ -212,6 +212,7 @@ var Asset = BaseFile.extend({
 	src: null,
 	min: false,
 	rjs: false,
+	hashname: true,
 	ext: null,
 	
 	initialize: function (obj) {
@@ -260,7 +261,7 @@ var Asset = BaseFile.extend({
 		// optimze is done, time to hash
 		function done() {
 			// hash and rename the tempDist
-			self.hash(tempDist);
+			if (self.hashname) self.hash(tempDist);
 			callback();
 		}
 	},

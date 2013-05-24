@@ -21,6 +21,7 @@ module.exports = {
 		//   src: dev src path
 		//   min: minify?
 		//   rjs: requirejs module base, default: false, true == "base"
+		//   hashname: produce a hashed filename?
 		{ id: "jquery",    src: "js/libs/require-jquery.js" },
 		{ id: "modernizr", src: "js/libs/modernizr.js" },
 		{ id: "style",     src: "css/style.css", min: true },
