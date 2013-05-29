@@ -261,7 +261,7 @@ var Asset = BaseFile.extend({
 		// optimze is done, time to hash
 		function done() {
 			// hash and rename the tempDist
-			if (self.hashname) self.hash(tempDist);
+			self.hash(tempDist, self.hashname);
 			callback();
 		}
 	},
@@ -309,13 +309,13 @@ var Asset = BaseFile.extend({
 		self.done();
 	},
 	
-	hash: function (tempDist) {
+	hash: function (tempDist, hashname) {
 		var self = this;
 		try {
 			// hash digest the tempDist file
 			var data = fs.readFileSync(tempDist, 'utf8'),
 				digest = crypto.createHash('sha1').update(data).digest('hex'),
-				fileName = self.id + '-' + digest + self.ext,
+				fileName = hashname ? self.id + '-' + digest + self.ext : self.id + self.ext,
 				distFile = realDist + '/' + fileName;
 			
 			// rename the temp file to the new hashed name
