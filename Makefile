@@ -1,9 +1,6 @@
-# Name phony targets to avoid name conflicts
-.PHONY: dev build sass clean
-
 # Define vars
-builder = cd build && node buk-builder
-dist_dir = public/dist
+BUILDER = cd build && node buk-builder
+DIST_DIR = public/dist
 
 # Run builder for local development
 # `make` or `make dev`
@@ -12,30 +9,36 @@ dist_dir = public/dist
 #   label=text
 #   base=path
 #   config=file.js
+.PHONY: dev
 dev:
-	@ $(builder) mode=banner label=development
+	@ $(BUILDER) mode=banner label=development
 	@ make sass clean
-	@ $(builder) config=config/builder.js
+	@ $(BUILDER) config=config/builder.js
 
 # Create a build with file hashing for production
 # `make build`
+.PHONY: build
 build:
-	@ $(builder) mode=banner label=build
+	@ $(BUILDER) mode=banner label=build
 	@ make sass clean
-	@ $(builder) mode=build config=config/builder.js
-	@ git add $(dist_dir)
+	@ $(BUILDER) mode=build config=config/builder.js
+	@ git add $(DIST_DIR)
 
 # Pre-process sass files to get latest css
+# `make sass`
+.PHONY: sass
 sass:
 	@ echo -- pre-process sass files
 	@ compass compile
 	
 # Remove js / css files in the dist directory
+# `make clean`
+.PHONY: clean
 clean:
-	@ if [ ! -d $(dist_dir) ]; then \
-		echo 'make: directory does not exist: $(dist_dir)'; \
+	@ if [ ! -d $(DIST_DIR) ]; then \
+		echo 'make: directory does not exist: $(DIST_DIR)'; \
 		exit 1; \
 	fi;
 	@ echo -- remove old dist files
-	@ rm -f $(dist_dir)/*.{js,css}
-	@ git rm -f --ignore-unmatch $(dist_dir)/*.{js,css}
+	@ rm -f $(DIST_DIR)/*.{js,css}
+	@ git rm -f --ignore-unmatch $(DIST_DIR)/*.{js,css}

@@ -6,10 +6,9 @@
 	-- Check availability by running `which make`  
 	-- If undefined (on Mac OSX), install [Xcode command line tools](https://developer.apple.com/downloads)  
 
-3. Install Compass + plugins for SASS compilation:
+3. Install Compass for SASS compilation:
 
 	`gem install compass`  
-	`gem install susy`  
 
 # Building Front-end JS and CSS
 
