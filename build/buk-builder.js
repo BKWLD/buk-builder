@@ -1,5 +1,5 @@
 /*! =======================================================
- * BUK Builder v0.6.0
+ * BUK Builder v0.6.1
  * Platform agnostic versioning tool for CSS & RequireJS.
  * https://github.com/bkwld/buk-builder
  * ========================================================
@@ -289,7 +289,7 @@ var Asset = P(BaseFile, function (proto, supr) {
         name: self.name,
         optimize: self.min ? 'uglify' : 'none',
         out: outFile
-      }, self.rjsOut);
+      }, self.rjsOut, self.rjsError);
     
     // normal javascript minify
     } else {
@@ -299,7 +299,7 @@ var Asset = P(BaseFile, function (proto, supr) {
         include: self.name,
         skipModuleInsertion: true,
         out: outFile
-      }, self.rjsOut);
+      }, self.rjsOut, self.rjsError);
     }
   };
   
@@ -310,7 +310,7 @@ var Asset = P(BaseFile, function (proto, supr) {
       optimizeCss: 'standard',
       cssIn: self.realPath,
       out: outFile
-    }, self.rjsOut);
+    }, self.rjsOut, self.rjsError);
   };
   
   proto.copy = function (outFile) {
@@ -349,6 +349,11 @@ var Asset = P(BaseFile, function (proto, supr) {
     lines = _.rest(lines, 2);
     console.log(lines.join('\n').grey);
     self.done();
+  };
+
+  proto.rjsError = function() {
+    console.log('\n-- require.JS error:'.red.bold);
+    console.log(err);
   };
 });
 
