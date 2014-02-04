@@ -1,3 +1,7 @@
+Note: We have deprecated this in favor of using [Grunt](http://gruntjs.com/)
+
+--
+
 # Dev Environment Setup
 
 1. Install NodeJS (0.6 or higher): http://nodejs.org/download/
